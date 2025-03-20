@@ -170,19 +170,11 @@ def query_metrics(
 
     Args:
         metrics: List of metric names
-        group_by: Optional list of dimensions to group by or a single dimension
+        group_by: Optional list of dimensions to group by
         time_grain: Optional time grain (DAY, WEEK, MONTH, QUARTER, YEAR)
         limit: Optional limit for number of results
     """
     try:
-        # Ensure metrics is a list
-        if isinstance(metrics, str):
-            metrics = [metrics]
-
-        # Ensure group_by is a list if provided
-        if group_by and isinstance(group_by, str):
-            group_by = [group_by]
-
         # Generate metric list string for GraphQL
         metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
 

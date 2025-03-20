@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from dbtsl.models.metric import MetricType
 from dbtsl.models.dimension import DimensionType
