@@ -53,7 +53,7 @@ def check_required_env_vars():
     return missing_vars
 
 def test_sl_connection() -> bool:
-    """Test the connection to the semantic layer using environment variables"""
+    """Test the connection to the semantic layer"""
     missing_vars = check_required_env_vars()
     if missing_vars:
         print(f"Cannot auto-connect: Missing environment variables: {', '.join(missing_vars)}")
@@ -66,7 +66,7 @@ def test_sl_connection() -> bool:
     try:
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
-        query: str = f"""{{
+        query = f"""{{
           environmentInfo(environmentId: "{CONFIG['environment_id']}") {{
             dialect
           }}
@@ -92,7 +92,6 @@ def test_sl_connection() -> bool:
         print(f"Failed to connect: {str(e)}")
         return False
 
-# Test the connection to the semantic layer
 test_sl_connection()
 
 @mcp.tool()
@@ -123,13 +122,6 @@ def get_granularities(metrics):
     Args:
         metrics: List of metric names or a single metric name
     """
-    if not CONFIG["is_connected"]:
-        # Try to auto-connect first instead of returning an error
-        if test_sl_connection():
-            print("Auto-connected to the semantic layer")
-        else:
-            return "Not connected. Use connect() first."
-
     try:
         # Ensure metrics is a list
         if isinstance(metrics, str):
