@@ -11,19 +11,17 @@ Environment Variables:
 import json
 import os
 import time
-import requests
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
+from dbtsl import SemanticLayerClient
+import requests
+from semantic_layer.types import DimensionToolResponse, MetricToolResponse
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Create the MCP server
-mcp = FastMCP("dbt Minimal")
+mcp = FastMCP("dbt")
 
 # Global config to store connection information
 CONFIG = {
@@ -33,8 +31,18 @@ CONFIG = {
     "is_connected": False
 }
 
-# Set this to True to automatically connect when MCP server starts
-AUTO_CONNECT = True
+host = os.environ.get("DBT_HOST")
+environment_id = os.environ.get("DBT_ENV_ID")
+token = os.environ.get("DBT_TOKEN")
+
+if not host or not environment_id or not token:
+    raise ValueError("Missing required environment variables: DBT_HOST, DBT_ENV_ID, DBT_TOKEN.")
+
+semantic_layer_client = SemanticLayerClient(
+    environment_id=int(environment_id),
+    auth_token=token,
+    host=host,
+)
 
 def check_required_env_vars():
     """Check if all required environment variables are set"""
@@ -44,8 +52,8 @@ def check_required_env_vars():
             missing_vars.append(var)
     return missing_vars
 
-def auto_connect():
-    """Automatically connect to the semantic layer using environment variables"""
+def test_sl_connection() -> bool:
+    """Test the connection to the semantic layer using environment variables"""
     missing_vars = check_required_env_vars()
     if missing_vars:
         print(f"Cannot auto-connect: Missing environment variables: {', '.join(missing_vars)}")
@@ -58,7 +66,7 @@ def auto_connect():
     try:
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
-        query = f"""{{
+        query: str = f"""{{
           environmentInfo(environmentId: "{CONFIG['environment_id']}") {{
             dialect
           }}
@@ -84,108 +92,28 @@ def auto_connect():
         print(f"Failed to connect: {str(e)}")
         return False
 
-# Try to connect automatically if enabled
-if AUTO_CONNECT:
-    auto_connect()
+# Test the connection to the semantic layer
+test_sl_connection()
 
 @mcp.tool()
 def list_metrics():
     """
     List all metrics from the dbt Semantic Layer
     """
-    if not CONFIG["is_connected"]:
-        # Try to auto-connect first instead of returning an error
-        if auto_connect():
-            print("Auto-connected to the semantic layer")
-        else:
-            return "Not connected. Use connect() first."
-
-    try:
-        url = f"https://{CONFIG['host']}/api/graphql"
-        headers = {"Authorization": f"Bearer {CONFIG['token']}"}
-        query = f"""{{
-          metrics(environmentId: "{CONFIG['environment_id']}") {{
-            name
-            description
-            type
-          }}
-        }}"""
-
-        print(f"Executing GraphQL query: {query}")
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"query": query}
-        )
-
-        data = response.json()
-
-        if "errors" in data:
-            return f"GraphQL error: {data['errors']}"
-
-        return json.dumps(data["data"]["metrics"], indent=2)
-    except Exception as e:
-        return f"Error listing metrics: {str(e)}"
+    with semantic_layer_client.session():
+        return [MetricToolResponse(m.name,m.type, m.label, m.description) for m in semantic_layer_client.metrics()]
 
 @mcp.tool()
-def get_dimensions(metrics):
+def get_dimensions(metrics: list[str]):
     """
     Get available dimensions for specified metrics
 
     Args:
         metrics: List of metric names or a single metric name
     """
-    if not CONFIG["is_connected"]:
-        # Try to auto-connect first instead of returning an error
-        if auto_connect():
-            print("Auto-connected to the semantic layer")
-        else:
-            return "Not connected. Use connect() first."
+    with semantic_layer_client.session():
+        return [DimensionToolResponse(d.name, d.type, d.description, d.label) for d in semantic_layer_client.dimensions(metrics)]
 
-    try:
-        # Ensure metrics is a list
-        if isinstance(metrics, str):
-            metrics = [metrics]
-
-        # Generate metric list string for GraphQL
-        metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
-
-        url = f"https://{CONFIG['host']}/api/graphql"
-        headers = {"Authorization": f"Bearer {CONFIG['token']}"}
-        query = f"""
-        {{
-          dimensions(
-            environmentId: "{CONFIG['environment_id']}"
-            metrics: [{metric_list}]
-          ) {{
-            name
-            description
-            type
-            typeParams {{
-              timeGranularity
-            }}
-            queryableGranularities
-          }}
-        }}
-        """
-
-        print(f"Executing GraphQL query: {query}")
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"query": query}
-        )
-
-        data = response.json()
-
-        if "errors" in data:
-            return f"GraphQL error: {data['errors']}"
-
-        return json.dumps(data["data"]["dimensions"], indent=2)
-    except Exception as e:
-        return f"Error getting dimensions: {str(e)}"
 
 @mcp.tool()
 def get_granularities(metrics):
@@ -197,7 +125,7 @@ def get_granularities(metrics):
     """
     if not CONFIG["is_connected"]:
         # Try to auto-connect first instead of returning an error
-        if auto_connect():
+        if test_sl_connection():
             print("Auto-connected to the semantic layer")
         else:
             return "Not connected. Use connect() first."
@@ -239,23 +167,21 @@ def get_granularities(metrics):
         return f"Error getting granularities: {str(e)}"
 
 @mcp.tool()
-def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
+def query_metrics(
+    metrics: list[str],
+    group_by: list[str] | None = None,
+    time_grain: str | None = None,
+    limit: int | None = None
+):
     """
     Query metrics with optional grouping and filtering
 
     Args:
-        metrics: List of metric names or a single metric name
+        metrics: List of metric names
         group_by: Optional list of dimensions to group by or a single dimension
         time_grain: Optional time grain (DAY, WEEK, MONTH, QUARTER, YEAR)
         limit: Optional limit for number of results
     """
-    if not CONFIG["is_connected"]:
-        # Try to auto-connect first instead of returning an error
-        if auto_connect():
-            print("Auto-connected to the semantic layer")
-        else:
-            return "Not connected. Use connect() first."
-
     try:
         # Ensure metrics is a list
         if isinstance(metrics, str):
@@ -384,8 +310,8 @@ if __name__ == "__main__":
         print()
 
     # Try to connect if auto-connect is enabled
-    if AUTO_CONNECT and not CONFIG["is_connected"]:
-        auto_connect()
+    if not CONFIG["is_connected"]:
+        test_sl_connection()
 
     # Show connection status
     if CONFIG["is_connected"]:
