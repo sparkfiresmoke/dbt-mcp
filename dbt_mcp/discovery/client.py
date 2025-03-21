@@ -1,8 +1,9 @@
 import textwrap
-from typing import Any, Optional, TypedDict, Literal
+from typing import Optional, TypedDict, Literal
 import requests
 
 PAGE_SIZE = 100
+MAX_NUM_MODELS = 1000
 
 class GraphQLQueries:
     GET_MODELS = textwrap.dedent("""
@@ -10,14 +11,36 @@ class GraphQLQueries:
             $environmentId: BigInt!,
             $modelsFilter: ModelAppliedFilter,
             $after: String,
-            $first: Int
+            $first: Int,
+            $sort: AppliedModelSort
         ) {
             environment(id: $environmentId) {
                 applied {
-                    models(filter: $modelsFilter, after: $after, first: $first) {
+                    models(filter: $modelsFilter, after: $after, first: $first, sort: $sort) {
                         pageInfo {
                             endCursor
                         }
+                        edges {
+                            node {
+                                name
+                                description
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    """)
+
+    GET_MODEL_DETAILS = textwrap.dedent("""
+        query GetModelDetails(
+            $environmentId: BigInt!,
+            $modelsFilter: ModelAppliedFilter
+            $first: Int,
+        ) {
+            environment(id: $environmentId) {
+                applied {
+                    models(filter: $modelsFilter, first: $first) {
                         edges {
                             node {
                                 name
@@ -55,9 +78,7 @@ class MetadataAPIClient:
         return response.json()
 
 class ModelFilter(TypedDict, total=False):
-    access: Optional[Literal["public", "private", "protected"]]
-    modelingLayer: Optional[Literal["marts", "fact", "dimension", "fct", "dim"]]
-    group: Optional[str]
+    modelingLayer: Optional[Literal["marts"]]
 
 class ModelsFetcher:
     def __init__(self, api_client: MetadataAPIClient, environment_id: int):
@@ -84,13 +105,13 @@ class ModelsFetcher:
         has_next_page = True
         after_cursor: str = ""
         all_edges: list[dict] = []
-
-        while has_next_page:
+        while has_next_page and len(all_edges) < MAX_NUM_MODELS:
             variables = {
                 "environmentId": self.environment_id,
                 "after": after_cursor,
                 "first": PAGE_SIZE,
-                "modelsFilter": model_filter or {}
+                "modelsFilter": model_filter or {},
+                "sort": {"field": "queryUsageCount", "direction": "desc"}
             }
 
             result = self.api_client.execute_query(GraphQLQueries.GET_MODELS, variables)
@@ -102,3 +123,12 @@ class ModelsFetcher:
                 has_next_page = False
 
         return all_edges
+
+    def fetch_model_details(self, model_name: str) -> dict:
+        variables = {
+            "environmentId": self.environment_id,
+            "modelsFilter": {"identifier": model_name},
+            "first": 1
+        }
+        result = self.api_client.execute_query(GraphQLQueries.GET_MODEL_DETAILS, variables)
+        return result["data"]["environment"]["applied"]["models"]["edges"][0]["node"]

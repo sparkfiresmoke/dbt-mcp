@@ -49,3 +49,13 @@ def test_fetch_models_with_filter(models_fetcher: ModelsFetcher):
 
     # Validate filtered results
     assert len(filtered_results) > 0
+
+def test_fetch_model_details(models_fetcher: ModelsFetcher):
+    models = models_fetcher.fetch_models()
+    model_name = models[0]["name"]
+
+    # Fetch filtered results
+    filtered_results = models_fetcher.fetch_model_details(model_name)
+
+    # Validate filtered results
+    assert len(filtered_results) > 0
