@@ -32,17 +32,9 @@ def register_discovery_tools(dbt_mcp: FastMCP, config: Config) -> None:
         """
         return models_fetcher.fetch_model_details(model_name)
 
-    # TODO
-    # @dbt_mcp.tool()
-    # def get_model_ancestors(model_name: str) -> list[dict]:
-    #     """
-    #     Get the ancestors of a specific dbt model.
-    #     """
-    #     return models_fetcher.fetch_model_ancestors(model_name)
-
-    # @dbt_mcp.tool()
-    # def get_model_descendants(model_name: str) -> list[dict]:
-    #     """
-    #     Get the descendants of a specific dbt model.
-    #     """
-    #     return models_fetcher.fetch_model_descendants(model_name)
+    @dbt_mcp.tool()
+    def get_model_ancestors(model_name: str) -> list[dict]:
+        """
+        Get the ancestors of a specific dbt model.
+        """
+        return models_fetcher.fetch_model_parents(model_name)

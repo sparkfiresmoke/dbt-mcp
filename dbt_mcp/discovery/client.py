@@ -61,6 +61,85 @@ class GraphQLQueries:
         }
     """)
 
+    GET_MODEL_PARENTS = textwrap.dedent("""
+        query GetModelParents(
+            $environmentId: BigInt!,
+            $modelsFilter: ModelAppliedFilter
+            $first: Int,
+        ) {
+            environment(id: $environmentId) {
+                applied {
+                    models(filter: $modelsFilter, first: $first) {
+                        pageInfo {
+                            endCursor
+                        }
+                        edges {
+                            node {
+                                parents {
+                                    ... on ExposureAppliedStateNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on ExternalModelNode {
+                                        resourceType
+                                        description
+                                        name
+                                    }
+                                    ... on MacroDefinitionNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on MetricDefinitionNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on ModelAppliedStateNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on SavedQueryDefinitionNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on SeedAppliedStateNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on SemanticModelDefinitionNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on SnapshotAppliedStateNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on SourceAppliedStateNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                    ... on TestAppliedStateNestedNode {
+                                        resourceType
+                                        name
+                                        description
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    """)
+
 class MetadataAPIClient:
     def __init__(self, host: str, token: str):
         self.url = f'https://metadata.{host}/graphql'
@@ -132,3 +211,12 @@ class ModelsFetcher:
         }
         result = self.api_client.execute_query(GraphQLQueries.GET_MODEL_DETAILS, variables)
         return result["data"]["environment"]["applied"]["models"]["edges"][0]["node"]
+
+    def fetch_model_parents(self, model_name: str) -> list[dict]:
+        variables = {
+            "environmentId": self.environment_id,
+            "modelsFilter": {"identifier": model_name},
+            "first": 1
+        }
+        result = self.api_client.execute_query(GraphQLQueries.GET_MODEL_PARENTS, variables)
+        return result["data"]["environment"]["applied"]["models"]["edges"][0]["node"]["parents"]
