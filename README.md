@@ -54,12 +54,14 @@ This configuration will be added to the respective client's config file:
 ```
 Be sure to replace `<path-to-this-directory>`
 
+If you encounter any problems. You can try running `task run` to see errors in your terminal
+
 
 ### Claude Desktop
 
 Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to create the `claude_desktop_config.json` file and connect.
 
-If you encounter any problems. You can try running `task run` to see errors in your terminal or examining the Claude Desktop logs at `~/Library/Logs/Claude`.
+You can find the Claude Desktop logs at `~/Library/Logs/Claude`.
 
 
 ### Cursor
