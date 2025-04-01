@@ -2,6 +2,9 @@
 name = "dbt-mcp"
 version = "0.1.0"
 description = "A MCP (Model Context Protocol) server for interacting with dbt resources."
+authors = [
+  {name = "dbt Labs"}
+]
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
