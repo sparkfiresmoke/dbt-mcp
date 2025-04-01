@@ -9,6 +9,8 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-24.04
+    environment:
+      name: pypi
     permissions:
       # this permission is required for trusted publishing
       # see https://github.com/marketplace/actions/pypi-publish
