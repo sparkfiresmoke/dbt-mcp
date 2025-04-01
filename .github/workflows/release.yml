@@ -29,8 +29,9 @@ jobs:
         run: task check
       - name: Run tests
         run: task test:unit
-      - name: Build
-        run: task build
+      # TODO: Actually build the package instead of releasing a placeholder
+      # - name: Build
+      #   run: task build
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
