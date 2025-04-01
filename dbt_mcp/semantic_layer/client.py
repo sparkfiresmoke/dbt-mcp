@@ -9,15 +9,6 @@ from dbt_mcp.semantic_layer.levenshtein import get_misspellings
 from dbt_mcp.semantic_layer.types import DimensionToolResponse, MetricToolResponse
 
 
-# class SemanticLayerClientProtocol(Protocol):
-#     @contextmanager
-#     def session(self) -> Generator[Any, Any, None]: ...
-
-#     def metrics(self) -> list[Metric]: ...
-
-#     def dimensions(self, metrics: list[str]) -> list[Dimension]: ...
-
-
 class SemanticLayerFetcher:
     def __init__(self, sl_client: SemanticLayerClient, host: str, config: Config):
         self.sl_client = sl_client
