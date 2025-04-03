@@ -3,7 +3,7 @@ from mcp.server.fastmcp import FastMCP
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
 from dbt_mcp.semantic_layer.gql.gql import GRAPHQL_QUERIES
-from dbt_mcp.semantic_layer.gql.iris import ConnAttr, submit_request
+from dbt_mcp.semantic_layer.gql.gql_request import ConnAttr, submit_request
 from dbt_mcp.semantic_layer.types import (
     DimensionToolResponse,
     EntityToolResponse,

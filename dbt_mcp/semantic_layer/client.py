@@ -2,11 +2,10 @@ import time
 from functools import cache
 
 import requests
-from dbtsl import SemanticLayerClient
 
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.gql.gql import GRAPHQL_QUERIES
-from dbt_mcp.semantic_layer.gql.iris import ConnAttr, submit_request
+from dbt_mcp.semantic_layer.gql.gql_request import ConnAttr, submit_request
 from dbt_mcp.semantic_layer.levenshtein import get_misspellings
 from dbt_mcp.semantic_layer.types import (
     DimensionToolResponse,
@@ -16,8 +15,7 @@ from dbt_mcp.semantic_layer.types import (
 
 
 class SemanticLayerFetcher:
-    def __init__(self, sl_client: SemanticLayerClient, host: str, config: Config):
-        self.sl_client = sl_client
+    def __init__(self, host: str, config: Config):
         self.host = host
         self.config = config
         self.entities_cache: dict[str, list[EntityToolResponse]] = {}
@@ -183,7 +181,7 @@ class SemanticLayerFetcher:
         }}
         """
 
-        url = f"https://{self.host}/api/graphql"
+        url = f"{self.host}/api/graphql"
         headers = {"Authorization": f"Bearer {self.config.token}"}
 
         print(f"Executing GraphQL mutation: {mutation}")
@@ -251,23 +249,17 @@ class SemanticLayerFetcher:
 
 def get_semantic_layer_fetcher(config: Config) -> SemanticLayerFetcher:
     if config.host and config.host.startswith("localhost"):
-        host = config.host
+        host = f"http://{config.host}"
     elif config.multicell_account_prefix:
-        host = f"{config.multicell_account_prefix}.semantic-layer.{config.host}"
+        host = f"https://{config.multicell_account_prefix}.semantic-layer.{config.host}"
     else:
-        host = f"semantic-layer.{config.host}"
+        host = f"https://semantic-layer.{config.host}"
     if config.environment_id is None:
         raise ValueError("Environment ID is required")
     if config.token is None:
         raise ValueError("Token is required")
 
-    semantic_layer_client = SemanticLayerClient(
-        environment_id=config.environment_id,
-        auth_token=config.token,
-        host=host,
-    )
     return SemanticLayerFetcher(
-        sl_client=semantic_layer_client,
         host=host,
         config=config,
     )
