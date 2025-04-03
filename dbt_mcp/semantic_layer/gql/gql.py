@@ -19,4 +19,13 @@ query GetDimensions($environmentId: BigInt!, $metrics: [MetricInput!]!) {
   }
 }
     """,
+    "entities": """
+query GetEntities($environmentId: BigInt!, $metrics: [MetricInput!]!) {
+  entities(environmentId: $environmentId, metrics: $metrics) {
+    description
+    name
+    type
+  }
+}
+    """,
 }

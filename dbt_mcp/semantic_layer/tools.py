@@ -2,11 +2,10 @@ from mcp.server.fastmcp import FastMCP
 
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
-from dbt_mcp.semantic_layer.gql.gql import GRAPHQL_QUERIES
-from dbt_mcp.semantic_layer.gql.gql_request import ConnAttr, submit_request
 from dbt_mcp.semantic_layer.types import (
     DimensionToolResponse,
     EntityToolResponse,
+    MetricToolResponse,
 )
 
 
@@ -21,28 +20,11 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
     semantic_layer_fetcher = get_semantic_layer_fetcher(config)
 
     @dbt_mcp.tool()
-    def list_metrics() -> dict:
+    def list_metrics() -> list[MetricToolResponse]:
         """
         List all metrics from the dbt Semantic Layer
         """
-        return submit_request(
-            ConnAttr(
-                host=f"https://semantic-layer.{config.host}",
-                params={"environmentid": config.environment_id},
-                auth_header=f"Bearer {config.token}",
-            ),
-            {"query": GRAPHQL_QUERIES["metrics"]},
-        )
-
-    @dbt_mcp.tool()
-    def get_dimensions_truncated(metrics: list[str]) -> list[DimensionToolResponse]:
-        """
-        Get available dimensions for specified metrics
-
-        Args:
-            metrics: List of metric names
-        """
-        return semantic_layer_fetcher.get_dimensions(metrics=metrics)[:10]
+        return semantic_layer_fetcher.list_metrics()
 
     @dbt_mcp.tool()
     def get_dimensions(metrics: list[str]) -> list[DimensionToolResponse]:

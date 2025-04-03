@@ -35,10 +35,10 @@ class SemanticLayerFetcher:
             raise ValueError(metrics_result["errors"])
         return [
             MetricToolResponse(
-                name=m["name"],
-                type=m["type"],
-                label=m["label"],
-                description=m["description"],
+                name=m.get("name"),
+                type=m.get("type"),
+                label=m.get("label"),
+                description=m.get("description"),
             )
             for m in metrics_result["data"]["metrics"]
         ]
@@ -91,9 +91,9 @@ class SemanticLayerFetcher:
                 raise ValueError(entities_result["errors"])
             entities = [
                 EntityToolResponse(
-                    name=e["name"],
-                    type=e["type"],
-                    description=e["description"],
+                    name=e.get("name"),
+                    type=e.get("type"),
+                    description=e.get("description"),
                 )
                 for e in entities_result["data"]["entities"]
             ]
