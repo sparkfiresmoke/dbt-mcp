@@ -59,16 +59,17 @@ class SemanticLayerFetcher:
             )
             if "errors" in dimensions_result:
                 raise ValueError(dimensions_result["errors"])
-            dimensions = [
-                DimensionToolResponse(
-                    name=d.get("name"),
-                    type=d.get("type"),
-                    description=d.get("description"),
-                    label=d.get("label"),
-                    granularities=d.get("typeParams", {}).get("timeGranularity"),
+            dimensions = []
+            for d in dimensions_result["data"]["dimensions"]:
+                dimensions.append(
+                    DimensionToolResponse(
+                        name=d.get("name"),
+                        type=d.get("type"),
+                        description=d.get("description"),
+                        label=d.get("label"),
+                        granularities=d.get("queryableGranularities"),
+                    )
                 )
-                for d in dimensions_result["data"]["dimensions"]
-            ]
             self.dimensions_cache[metrics_key] = dimensions
         return self.dimensions_cache[metrics_key]
 
@@ -120,7 +121,7 @@ class SemanticLayerFetcher:
             )
 
         if errors:
-            return "Errors: " + ", ".join(errors)
+            return f"Errors: {', '.join(errors)}"
 
         available_dimensions = [d.name for d in self.get_dimensions(metrics)]
         dimension_misspellings = get_misspellings(
@@ -139,7 +140,7 @@ class SemanticLayerFetcher:
             )
 
         if errors:
-            return "Errors: " + ", ".join(errors)
+            return f"Errors: {', '.join(errors)}"
         return None
 
     def query_metrics(
