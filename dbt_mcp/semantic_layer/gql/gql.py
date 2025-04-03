@@ -13,26 +13,10 @@ query GetMetrics($environmentId: BigInt!) {
 query GetDimensions($environmentId: BigInt!, $metrics: [MetricInput!]!) {
   dimensions(environmentId: $environmentId, metrics: $metrics) {
     description
-    expr
-    isPartition
-    metadata {
-      fileSlice {
-        content
-        endLineNumber
-        filename
-        startLineNumber
-      }
-      repoFilePath
-    }
     name
-    qualifiedName
     type
     typeParams {
       timeGranularity
-      validityParams {
-        isEnd
-        isStart
-      }
     }
   }
 }
