@@ -67,7 +67,8 @@ class SemanticLayerFetcher:
                         type=d.get("type"),
                         description=d.get("description"),
                         label=d.get("label"),
-                        granularities=d.get("queryableGranularities"),
+                        granularities=d.get("queryableGranularities")
+                        + d.get("queryableTimeGranularities"),
                     )
                 )
             self.dimensions_cache[metrics_key] = dimensions

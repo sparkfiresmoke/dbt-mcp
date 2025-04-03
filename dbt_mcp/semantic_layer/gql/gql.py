@@ -16,6 +16,7 @@ query GetDimensions($environmentId: BigInt!, $metrics: [MetricInput!]!) {
     name
     type
     queryableGranularities
+    queryableTimeGranularities
   }
 }
     """,
