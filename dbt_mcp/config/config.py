@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 class Config:
     host: str | None
     environment_id: int | None
+    user_id: int | None
     token: str | None
     project_dir: str | None
     dbt_cli_enabled: bool
@@ -25,6 +26,7 @@ def load_config() -> Config:
 
     host = os.environ.get("DBT_HOST")
     environment_id = os.environ.get("DBT_ENV_ID")
+    user_id = os.environ.get("DBT_USER_ID")
     token = os.environ.get("DBT_TOKEN")
     project_dir = os.environ.get("DBT_PROJECT_DIR")
     dbt_path = os.environ.get("DBT_PATH", "dbt")
@@ -73,6 +75,7 @@ def load_config() -> Config:
     return Config(
         host=host,
         environment_id=int(environment_id) if environment_id else None,
+        user_id=int(user_id) if user_id else None,
         token=token,
         project_dir=project_dir,
         dbt_cli_enabled=not disable_dbt_cli,

@@ -88,6 +88,7 @@ async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
     headers = {
         "Authorization": f"Bearer {config.token}",
         "environmentId": str(config.environment_id),
+        "userId": str(config.user_id),
     }
     remote_tools = await list_remote_tools(config.remote_mcp_url, headers)
     for tool in remote_tools:
