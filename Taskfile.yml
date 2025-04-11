@@ -94,3 +94,8 @@ tasks:
     desc: "Publish the package to PyPI"
     cmds:
       - uv publish
+
+  client:
+    desc: "Run the test client"
+    cmds:
+      - uv run client/main.py
