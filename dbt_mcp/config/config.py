@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 @dataclass
 class Config:
     host: str | None
-    environment_id: int | None
+    prod_environment_id: int | None
+    dev_environment_id: int | None
     user_id: int | None
     token: str | None
     project_dir: str | None
@@ -25,7 +26,8 @@ def load_config() -> Config:
     load_dotenv()
 
     host = os.environ.get("DBT_HOST")
-    environment_id = os.environ.get("DBT_ENV_ID")
+    prod_environment_id = os.environ.get("DBT_PROD_ENV_ID")
+    dev_environment_id = os.environ.get("DBT_DEV_ENV_ID")
     user_id = os.environ.get("DBT_USER_ID")
     token = os.environ.get("DBT_TOKEN")
     project_dir = os.environ.get("DBT_PROJECT_DIR")
@@ -43,7 +45,7 @@ def load_config() -> Config:
             errors.append(
                 "DBT_HOST environment variable is required when semantic layer or discovery is enabled."
             )
-        if not environment_id:
+        if not prod_environment_id:
             errors.append(
                 "DBT_ENV_ID environment variable is required when semantic layer or discovery is enabled."
             )
@@ -74,7 +76,8 @@ def load_config() -> Config:
 
     return Config(
         host=host,
-        environment_id=int(environment_id) if environment_id else None,
+        prod_environment_id=int(prod_environment_id) if prod_environment_id else None,
+        dev_environment_id=int(dev_environment_id) if dev_environment_id else None,
         user_id=int(user_id) if user_id else None,
         token=token,
         project_dir=project_dir,

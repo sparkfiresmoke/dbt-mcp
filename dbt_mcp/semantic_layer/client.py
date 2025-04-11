@@ -26,7 +26,7 @@ class SemanticLayerFetcher:
         metrics_result = submit_request(
             ConnAttr(
                 host=self.host,
-                params={"environmentid": self.config.environment_id},
+                params={"environmentid": self.config.prod_environment_id},
                 auth_header=f"Bearer {self.config.token}",
             ),
             {"query": GRAPHQL_QUERIES["metrics"]},
@@ -49,7 +49,7 @@ class SemanticLayerFetcher:
             dimensions_result = submit_request(
                 ConnAttr(
                     host=self.host,
-                    params={"environmentid": self.config.environment_id},
+                    params={"environmentid": self.config.prod_environment_id},
                     auth_header=f"Bearer {self.config.token}",
                 ),
                 {
@@ -80,7 +80,7 @@ class SemanticLayerFetcher:
             entities_result = submit_request(
                 ConnAttr(
                     host=self.host,
-                    params={"environmentid": self.config.environment_id},
+                    params={"environmentid": self.config.prod_environment_id},
                     auth_header=f"Bearer {self.config.token}",
                 ),
                 {
@@ -179,7 +179,7 @@ class SemanticLayerFetcher:
         mutation = f"""
         mutation {{
         createQuery(
-            environmentId: "{self.config.environment_id}"
+            environmentId: "{self.config.prod_environment_id}"
             metrics: [{metric_list}]
             {group_by_section}
             {limit_section}
@@ -214,7 +214,7 @@ class SemanticLayerFetcher:
             # Query for results
             result_query = f"""
             {{
-            query(environmentId: "{self.config.environment_id}", queryId: "{query_id}") {{
+            query(environmentId: "{self.config.prod_environment_id}", queryId: "{query_id}") {{
                 status
                 error
                 jsonResult(encoded: false)
@@ -258,7 +258,7 @@ def get_semantic_layer_fetcher(config: Config) -> SemanticLayerFetcher:
         host = f"https://{config.multicell_account_prefix}.semantic-layer.{config.host}"
     else:
         host = f"https://semantic-layer.{config.host}"
-    if config.environment_id is None:
+    if config.prod_environment_id is None:
         raise ValueError("Environment ID is required")
     if config.token is None:
         raise ValueError("Token is required")

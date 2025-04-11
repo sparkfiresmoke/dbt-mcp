@@ -11,7 +11,7 @@ from dbt_mcp.semantic_layer.types import (
 
 def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
     host = config.host
-    if not host or not config.token or not config.environment_id:
+    if not host or not config.token or not config.prod_environment_id:
         raise ValueError(
             "Host, token, and environment ID are required to use semantic layer tools. "
             + "To disable semantic layer tools, "

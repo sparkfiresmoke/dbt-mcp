@@ -35,7 +35,8 @@ Then edit `.env` with your specific environment variables:
 - `DISABLE_DISCOVERY`: Set this to `true` to disable dbt Discovery API MCP objects. Otherwise, they are enabled.
 - `DBT_HOST`: Your dbt Cloud instance hostname. This will look like an `Access URL` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses). If you are using Multi-cell, do not include the `ACCOUNT_PREFIX` here.
 - `MULTICELL_ACCOUNT_PREFIX`: If you are using Multi-cell, set this to your `ACCOUNT_PREFIX`. If you are not using Multi-cell, do not set this environment variable. You can learn more [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses).
-- `DBT_ENV_ID`: Your dbt Cloud environment ID.
+- `DBT_PROD_ENV_ID`: Your dbt Cloud production environment ID.
+- `DBT_DEV_ENV_ID`: Your dbt Cloud development environment ID.
 - `DBT_USER_ID`: Your dbt Cloud user ID.
 - `DBT_TOKEN`: Your personal access token or service token. Service token is required when using the Semantic Layer.
 - `DBT_PROJECT_DIR`: The path to your dbt Project.
