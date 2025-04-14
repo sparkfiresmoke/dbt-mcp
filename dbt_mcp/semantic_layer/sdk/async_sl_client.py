@@ -1,18 +1,18 @@
-from collections.abc import Iterator
-from contextlib import contextmanager
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Self
 
-from dbtsl.api.graphql.client.sync import SyncGraphQLClient
+from dbtsl.api.graphql.client.asyncio import AsyncGraphQLClient
 from dbtsl.client.base import BaseSemanticLayerClient
 from dbtsl.timeout import TimeoutOptions
 
-from dbt_mcp.semantic_layer.sdk.sync_adbc_client import SyncADBCClient
+from dbt_mcp.semantic_layer.sdk.async_adbc_client import AsyncADBCClient
 
 
-class SyncSemanticLayerClient(
-    BaseSemanticLayerClient[SyncGraphQLClient, SyncADBCClient]  # type: ignore
+class AsyncSemanticLayerClient(
+    BaseSemanticLayerClient[AsyncGraphQLClient, AsyncADBCClient]  # type: ignore
 ):
-    """A sync semantic layer client, backed by requests.
+    """An asyncio semantic layer client, backed by aiohttp.
 
     It performs operations by using the most appropriate API depending on the
     operation. For example, dataframes are fetched via ADBC while metadata
@@ -41,19 +41,18 @@ class SyncSemanticLayerClient(
             environment_id=environment_id,
             auth_token=auth_token,
             host=host,
-            gql_factory=SyncGraphQLClient,
-            adbc_factory=SyncADBCClient,
+            gql_factory=AsyncGraphQLClient,
+            adbc_factory=AsyncADBCClient,
             timeout=timeout,
         )
 
-    @contextmanager
-    def session(self) -> Iterator[Self]:
+    @asynccontextmanager
+    async def session(self) -> AsyncIterator[Self]:
         """Establish a connection with the dbt Semantic Layer's servers."""
-        # TODO: I'm unsure why this error is happening.
-        # if self._has_session:
-        #     raise ValueError("Cannot open session within session.")
+        if self._has_session:
+            raise ValueError("Cannot open session within session.")
 
-        with self._gql.session(), self._adbc.session():
+        async with self._gql.session(), self._adbc.session():
             self._has_session = True
             yield self
             self._has_session = False

@@ -6,8 +6,8 @@ from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.gql.gql import GRAPHQL_QUERIES
 from dbt_mcp.semantic_layer.gql.gql_request import ConnAttr, submit_request
 from dbt_mcp.semantic_layer.levenshtein import get_misspellings
+from dbt_mcp.semantic_layer.sdk.async_sl_client import AsyncSemanticLayerClient
 from dbt_mcp.semantic_layer.sdk.query_params import GroupByParam
-from dbt_mcp.semantic_layer.sdk.sync_sl_client import SyncSemanticLayerClient
 from dbt_mcp.semantic_layer.types import (
     DimensionToolResponse,
     EntityToolResponse,
@@ -20,7 +20,12 @@ from dbt_mcp.semantic_layer.types import (
 
 
 class SemanticLayerFetcher:
-    def __init__(self, sl_client: SyncSemanticLayerClient, host: str, config: Config):
+    def __init__(
+        self,
+        sl_client: AsyncSemanticLayerClient,
+        host: str,
+        config: Config,
+    ):
         self.sl_client = sl_client
         self.host = host
         self.config = config
@@ -150,7 +155,7 @@ class SemanticLayerFetcher:
             return f"Errors: {', '.join(errors)}"
         return None
 
-    def query_metrics(
+    async def query_metrics(
         self,
         metrics: list[str],
         group_by: list[GroupByParam] | None = None,
@@ -166,8 +171,8 @@ class SemanticLayerFetcher:
             return QueryMetricsError(error=error_message)
 
         try:
-            with self.sl_client.session():
-                query_result = self.sl_client.query(
+            async with self.sl_client.session():
+                query_result = await self.sl_client.query(
                     metrics=metrics,
                     # TODO: remove this type ignore once this PR is merged: https://github.com/dbt-labs/semantic-layer-sdk-python/pull/80
                     group_by=group_by,  # type: ignore
@@ -226,7 +231,7 @@ def get_semantic_layer_fetcher(config: Config) -> SemanticLayerFetcher:
         raise ValueError("Token is required")
     assert host is not None
 
-    semantic_layer_client = SyncSemanticLayerClient(
+    semantic_layer_client = AsyncSemanticLayerClient(
         environment_id=config.environment_id,
         auth_token=config.token,
         host=host,

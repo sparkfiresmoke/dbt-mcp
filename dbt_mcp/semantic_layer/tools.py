@@ -18,7 +18,7 @@ from dbt_mcp.semantic_layer.types import (
 logger = logging.getLogger(__name__)
 
 
-def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
+async def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
     host = config.host
     if not host or not config.token or not config.environment_id:
         raise ValueError(
@@ -65,7 +65,7 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
             return str(e)
 
     @dbt_mcp.tool(description=get_prompt("semantic_layer/query_metrics"))
-    def query_metrics(
+    async def query_metrics(
         metrics: list[str],
         group_by: list[GroupByParam] | None = None,
         order_by: list[OrderByParam] | None = None,
@@ -74,7 +74,7 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
     ) -> str:
         try:
             start_time = time()
-            result = semantic_layer_fetcher.query_metrics(
+            result = await semantic_layer_fetcher.query_metrics(
                 metrics=metrics,
                 group_by=group_by,
                 order_by=order_by,
