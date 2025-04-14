@@ -1,5 +1,3 @@
-from functools import cache
-
 from dbtsl.api.shared.query_params import OrderByGroupBy
 
 from dbt_mcp.config.config import Config
@@ -27,7 +25,7 @@ class SemanticLayerFetcher:
         self.entities_cache: dict[str, list[EntityToolResponse]] = {}
         self.dimensions_cache: dict[str, list[DimensionToolResponse]] = {}
 
-    @cache
+    # @cache
     def list_metrics(self) -> list[MetricToolResponse]:
         metrics_result = submit_request(
             ConnAttr(
