@@ -118,6 +118,7 @@ After setup you can start, stop, and configure your MCP servers by:
 
 VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for reference
 
+
 ## Tools
 
 ### dbt CLI
@@ -139,8 +140,13 @@ VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-serv
 * `query_metrics` - Queries metrics with optional grouping, ordering, filtering, and limiting
 
 
-### Discovery 
+### Discovery
 * `get_mart_models` - Gets all mart models
 * `get_all_models` - Gets all models
 * `get_model_details` - Gets details for a specific model
 * `get_model_parents` - Gets parent models of a specific model
+
+## Contributing
+
+Read `CONTRIBUTING.md` for instructions on how to get involved!
+
