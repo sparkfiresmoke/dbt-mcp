@@ -20,6 +20,11 @@ messages = []
 
 async def main():
     user_role = "user"
+    available_tools = await get_tools()
+    tools_str = "\n".join(
+        [f"- {t['name']}({t['parameters']})" for t in available_tools]
+    )
+    print(f"Available tools:\n{tools_str}")
     while True:
         user_input = input(f"{user_role} > ")
         messages.append({"role": user_role, "content": user_input})
@@ -34,7 +39,7 @@ async def main():
             response = llm_client.responses.create(
                 model=LLM_MODEL,
                 input=messages,
-                tools=await get_tools(),
+                tools=available_tools,
                 parallel_tool_calls=False,
             )
             response_output = response.output[0]
