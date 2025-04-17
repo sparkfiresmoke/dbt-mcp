@@ -85,7 +85,7 @@ function check_python() {
         exit 1
     fi
 
-    # check if python is version 3.12 
+    # check if python is version 3.12
     python_version=$($(python) --version 2>&1 | awk '{print $2}')
     if [[ ! "${python_version}" =~ 3\.12 ]]; then
         echo "Python version ${python_version} is not supported. Please install Python 3.12."
@@ -114,6 +114,18 @@ prompt_with_default() {
 
 function install_dbt_mcp_package() {
     local target_package="$1"
+    # sanity check to make sure the target package is dbt-mcp
+    if [[ ! "${target_package}" =~ "dbt-mcp" ]]; then
+        echo "========================================================="
+        echo "Hold on! This does not look like a valid dbt-mcp package."
+        echo "========================================================="
+        read -p "Are you sure you want to install ${target_package}? (y/n): " confirm
+        if [[ ! "${confirm}" =~ ^[Yy]$ ]]; then
+            echo "Installation aborted. Bye!"
+            exit 0
+        fi
+    fi
+
     if [[ -z "${target_package}" ]]; then
         target_package="dbt-mcp"
     fi
@@ -190,7 +202,7 @@ DBT_PATH="${DBT_PATH}"
 EOF
 
     if [[ -n "${MULTICELL_ACCOUNT_PREFIX}" ]]; then
-        echo "MULTICELL_ACCOUNT_PREFIX=\"${MULTICELL_ACCOUNT_PREFIX}\"" >> "${mcp_server_dir}/.env"
+        echo "MULTICELL_ACCOUNT_PREFIX=\"${MULTICELL_ACCOUNT_PREFIX}\"" >>"${mcp_server_dir}/.env"
     fi
 
     echo "Great! That's all we needed for now."
