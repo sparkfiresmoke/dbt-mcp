@@ -140,24 +140,58 @@ function install_dbt_mcp_package() {
 
 function configure_environment() {
     # Create .env file
-    echo "------------------------------------------------------------------"
+    echo ""
+    echo "-----------------------------------------------------------------------"
     echo "We need a couple of details about your dbt project to get started."
-    echo "------------------------------------------------------------------"
+    echo "You can always adjust the configuration later in ${mcp_server_dir}/.env"
+    echo "-----------------------------------------------------------------------"
+    echo ""
     touch "${mcp_server_dir}/.env"
 
     # Prompt for environment variables with defaults
+    echo "Your dbt Cloud instance hostname."
+    echo "This will look like an \`Access URL\` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses). If you are using Multi-cell, do not include the \`ACCOUNT_PREFIX\` here."
     DBT_HOST=$(prompt_with_default "Enter DBT_HOST" "cloud.dbt.com")
-    DBT_ENV_ID=$(prompt_with_default "Enter DBT_ENV_ID" "1")
+
+    echo "Your personal access token or service token. Service token is required when using the Semantic Layer."
     DBT_TOKEN=$(prompt_with_default "Enter DBT_TOKEN" "")
+
+    echo "Your dbt Cloud user ID."
+    DBT_USER_ID=$(prompt_with_default "Enter DBT_USER_ID")
+
+    echo "The path to your dbt project directory."
+    DBT_PROJECT_DIR=$(prompt_with_default "Enter DBT_PROJECT_DIR")
+
+    echo "Your dbt Cloud production environment ID."
+    DBT_PROD_ENV_ID=$(prompt_with_default "Enter DBT_PROD_ENV_ID")
+
+    echo "Your dbt Cloud development environment ID."
+    DBT_DEV_ENV_ID=$(prompt_with_default "Enter DBT_DEV_ENV_ID")
+
+    echo "The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running \`which dbt\`."
+    DBT_PATH=$(prompt_with_default "Enter DBT_PATH")
+
+    echo "Set this to \`core\` if the \`DBT_PATH\` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed"
     DBT_EXECUTABLE_TYPE=$(prompt_with_default "Enter DBT_EXECUTABLE_TYPE" "cloud")
+
+    echo "If you are using Multi-cell, set this to your \`ACCOUNT_PREFIX\`. If you are not using Multi-cell, do not set this environment variable. You can learn more [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses)."
+    MULTICELL_ACCOUNT_PREFIX=$(prompt_with_default "Enter MULTICELL_ACCOUNT_PREFIX" "")
 
     # Write to .env file
     cat >"${mcp_server_dir}/.env" <<EOF
-DBT_HOST=${DBT_HOST}
-DBT_ENV_ID=${DBT_ENV_ID}
-DBT_TOKEN=${DBT_TOKEN}
-DBT_EXECUTABLE_TYPE=${DBT_EXECUTABLE_TYPE}
+DBT_HOST="${DBT_HOST}"
+DBT_TOKEN="${DBT_TOKEN}"
+DBT_EXECUTABLE_TYPE="${DBT_EXECUTABLE_TYPE}"
+DBT_PROD_ENV_ID="${DBT_PROD_ENV_ID}"
+DBT_DEV_ENV_ID="${DBT_DEV_ENV_ID}"
+DBT_USER_ID="${DBT_USER_ID}"
+DBT_PROJECT_DIR="${DBT_PROJECT_DIR}"
+DBT_PATH="${DBT_PATH}"
 EOF
+
+    if [[ -n "${MULTICELL_ACCOUNT_PREFIX}" ]]; then
+        echo "MULTICELL_ACCOUNT_PREFIX=\"${MULTICELL_ACCOUNT_PREFIX}\"" >> "${mcp_server_dir}/.env"
+    fi
 
     echo "Great! That's all we needed for now."
     echo "You can always adjust the configuration later in ${mcp_server_dir}/.env"

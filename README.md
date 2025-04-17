@@ -11,6 +11,33 @@ In its current form, it allows users to:
 
 ![architecture diagram of the dbt MCP server](https://github.com/user-attachments/assets/89b8a24b-da7b-4e54-ba48-afceaa56f956)
 
+
+## Installation
+
+What to get going quickly?
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-mcp/dbt-mcp/refs/heads/main/install.sh)"
+```
+The installer also serves as a updated, simply run it again and it will detect your exisiting dbt-mcp installation and will offer to update it.
+
+## Configuration
+
+The MCP server takes the following configuration
+
+- `DISABLE_DBT_CLI`: Set this to `true` to disable dbt Core and dbt Cloud CLI MCP objects. Otherwise, they are enabled.
+- `DISABLE_SEMANTIC_LAYER`: Set this to `true` to disable dbt Semantic Layer MCP objects. Otherwise, they are enabled.
+- `DISABLE_DISCOVERY`: Set this to `true` to disable dbt Discovery API MCP objects. Otherwise, they are enabled.
+- `DBT_HOST`: Your dbt Cloud instance hostname. This will look like an `Access URL` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses). If you are using Multi-cell, do not include the `ACCOUNT_PREFIX` here.
+- `MULTICELL_ACCOUNT_PREFIX`: If you are using Multi-cell, set this to your `ACCOUNT_PREFIX`. If you are not using Multi-cell, do not set this environment variable. You can learn more [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses).
+- `DBT_PROD_ENV_ID`: Your dbt Cloud production environment ID.
+- `DBT_DEV_ENV_ID`: Your dbt Cloud development environment ID.
+- `DBT_USER_ID`: Your dbt Cloud user ID.
+- `DBT_TOKEN`: Your personal access token or service token. Service token is required when using the Semantic Layer.
+- `DBT_PROJECT_DIR`: The path to your dbt Project.
+- `DBT_PATH`: The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt`.
+- `DBT_EXECUTABLE_TYPE`: Set this to `core` if the `DBT_PATH` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed
+
 ## Setup
 
 1. Clone the repository:
@@ -30,18 +57,7 @@ cd dbt-mcp
 cp .env.example .env
 ```
 Then edit `.env` with your specific environment variables:
-- `DISABLE_DBT_CLI`: Set this to `true` to disable dbt Core and dbt Cloud CLI MCP objects. Otherwise, they are enabled.
-- `DISABLE_SEMANTIC_LAYER`: Set this to `true` to disable dbt Semantic Layer MCP objects. Otherwise, they are enabled.
-- `DISABLE_DISCOVERY`: Set this to `true` to disable dbt Discovery API MCP objects. Otherwise, they are enabled.
-- `DBT_HOST`: Your dbt Cloud instance hostname. This will look like an `Access URL` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses). If you are using Multi-cell, do not include the `ACCOUNT_PREFIX` here.
-- `MULTICELL_ACCOUNT_PREFIX`: If you are using Multi-cell, set this to your `ACCOUNT_PREFIX`. If you are not using Multi-cell, do not set this environment variable. You can learn more [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses).
-- `DBT_PROD_ENV_ID`: Your dbt Cloud production environment ID.
-- `DBT_DEV_ENV_ID`: Your dbt Cloud development environment ID.
-- `DBT_USER_ID`: Your dbt Cloud user ID.
-- `DBT_TOKEN`: Your personal access token or service token. Service token is required when using the Semantic Layer.
-- `DBT_PROJECT_DIR`: The path to your dbt Project.
-- `DBT_PATH`: The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt`.
-- `DBT_EXECUTABLE_TYPE`: Set this to `core` if the `DBT_PATH` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed
+
 
 
 ## Using with MCP Clients
