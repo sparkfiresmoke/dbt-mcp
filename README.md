@@ -19,11 +19,11 @@ What to get going quickly?
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-mcp/dbt-mcp/refs/heads/main/install.sh)"
 ```
-The installer also serves as a updated, simply run it again and it will detect your exisiting dbt-mcp installation and will offer to update it.
+The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offer to update it.
 
 ## Configuration
 
-The MCP server takes the following configuration
+The MCP server takes the following configuration:
 
 - `DISABLE_DBT_CLI`: Set this to `true` to disable dbt Core and dbt Cloud CLI MCP objects. Otherwise, they are enabled.
 - `DISABLE_SEMANTIC_LAYER`: Set this to `true` to disable dbt Semantic Layer MCP objects. Otherwise, they are enabled.
@@ -37,28 +37,6 @@ The MCP server takes the following configuration
 - `DBT_PROJECT_DIR`: The path to your dbt Project.
 - `DBT_PATH`: The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt`.
 - `DBT_EXECUTABLE_TYPE`: Set this to `core` if the `DBT_PATH` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed
-
-## Setup
-
-1. Clone the repository:
-```shell
-git clone https://github.com/dbt-labs/dbt-mcp.git
-cd dbt-mcp
-```
-
-2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
-
-3. [Install Task](https://taskfile.dev/installation/)
-
-4. Run `task install`
-
-5. Configure environment variables:
-```shell
-cp .env.example .env
-```
-Then edit `.env` with your specific environment variables:
-
-
 
 ## Using with MCP Clients
 
@@ -163,6 +141,27 @@ VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-serv
 * `get_all_models` - Gets all models
 * `get_model_details` - Gets details for a specific model
 * `get_model_parents` - Gets parent models of a specific model
+
+## Setup
+
+1. Clone the repository:
+```shell
+git clone https://github.com/dbt-labs/dbt-mcp.git
+cd dbt-mcp
+```
+
+2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+
+3. [Install Task](https://taskfile.dev/installation/)
+
+4. Run `task install`
+
+5. Configure environment variables:
+```shell
+cp .env.example .env
+```
+Then edit `.env` with your specific environment variables (see Configuration)
+
 
 ## Contributing
 
