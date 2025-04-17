@@ -14,7 +14,7 @@ In its current form, it allows users to:
 
 ## Installation
 
-What to get going quickly?
+Want to get going quickly?
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-mcp/dbt-mcp/refs/heads/main/install.sh)"
