@@ -85,13 +85,10 @@ function check_python() {
         exit 1
     fi
 
-    # check if the version is 3.12 or higher
+    # check if python is version 3.12 
     python_version=$($(python) --version 2>&1 | awk '{print $2}')
-    major_version=$(echo "${python_version}" | cut -d. -f1)
-    minor_version=$(echo "${python_version}" | cut -d. -f2)
-
-    if [[ "${major_version}" -lt 3 ]] || [[ "${major_version}" -eq 3 && "${minor_version}" -lt 12 ]]; then
-        echo "Python version ${python_version} is not supported. Please install Python 3.12 or higher."
+    if [[ ! "${python_version}" =~ 3\.12 ]]; then
+        echo "Python version ${python_version} is not supported. Please install Python 3.12."
         exit 1
     fi
 }
@@ -169,6 +166,7 @@ EOF
 # make sure python is installed and has version 3.12 or higher
 check_python
 
+# check if mcp-dbt is already installed
 check_existing_installation
 
 # install dbt-mcp package
