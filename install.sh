@@ -20,7 +20,7 @@
 
 # This script is designed to be run on macOS.
 
-mcp_server_dir="~/.dbt-mcp"
+mcp_server_dir="${HOME}/.dbt-mcp"
 
 function check_existing_installation() {
     if [[ -d "${mcp_server_dir}" && -f "${mcp_server_dir}/.venv/bin/dbt-mcp" ]]; then
@@ -171,10 +171,8 @@ check_python
 
 check_existing_installation
 
-target_override="$1"
-
 # install dbt-mcp package
-install_dbt_mcp_package "${target_override}"
+install_dbt_mcp_package "$1"
 
 # configure environment
 configure_environment
