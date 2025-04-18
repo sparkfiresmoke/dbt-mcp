@@ -110,5 +110,5 @@ def load_config() -> Config:
         remote_mcp_url=(
             "http://" if host and host.startswith("localhost") else "https://"
         )
-        + f"{host}/mcp/sse",
+        + f"{host}/mcp/messages",
     )

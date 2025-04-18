@@ -7,7 +7,6 @@ from typing import (
 )
 
 from mcp.client.session import ClientSession
-from mcp.client.sse import sse_client
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.tools.base import Tool
 from mcp.server.fastmcp.utilities.func_metadata import (
@@ -22,19 +21,19 @@ from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
 from dbt_mcp.config.config import Config
+from dbt_mcp.mcp.sdk.streamable import streamable_client
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def sse_mcp_connection_context(
+async def streamable_mcp_connection_context(
     url: str,
     headers: dict[str, Any] | None = None,
     timeout: float = 5,
-    sse_read_timeout: float = 60 * 5,
 ) -> AsyncGenerator[ClientSession, None]:
     async with (
-        sse_client(url, headers, timeout, sse_read_timeout) as (read, write),
+        streamable_client(url, headers, timeout) as (read, write),
         ClientSession(read, write) as session,
     ):
         await session.initialize()
@@ -74,7 +73,7 @@ async def list_remote_tools(
 ) -> list[RemoteTool]:
     result: list[RemoteTool] = []
     try:
-        async with sse_mcp_connection_context(url, headers) as session:
+        async with streamable_mcp_connection_context(url, headers) as session:
             result = (await session.list_tools()).tools
     except Exception:
         # TODO: uncomment this when remote tools are available
@@ -100,7 +99,7 @@ async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
             async def tool_function(
                 *args, **kwargs
             ) -> list[TextContent | ImageContent | EmbeddedResource]:
-                async with sse_mcp_connection_context(
+                async with streamable_mcp_connection_context(
                     config.remote_mcp_url, headers
                 ) as session:
                     return (
