@@ -1,0 +1,25 @@
+{
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.0/.schema/devbox.schema.json",
+    "packages": [
+      "python@3.13",
+      "uv@0.6.10",
+      "cowsay@latest",
+      "git@latest",
+      "go-task@latest",
+      "pre-commit@latest",
+      "black@latest",
+      "sqlfluff@latest",
+      "curl@latest",
+      "jq@latest"
+    ],
+    "shell": {
+      "init_hook": [
+        "cowsay \"Welcome to the devbox shell environment!\"",
+      ],
+      "scripts": {
+        "test": [
+          "echo \"Error: no test specified\" && exit 1"
+        ]
+      }
+    }
+  }
