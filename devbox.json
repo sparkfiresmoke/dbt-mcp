@@ -14,7 +14,7 @@
     ],
     "shell": {
       "init_hook": [
-        "cowsay \"Welcome to the devbox shell environment!\"",
+        "cowsay \"Welcome to the devbox shell environment for dbt-mcp!\""
       ],
       "scripts": {
         "test": [
