@@ -19,7 +19,7 @@ class Config:
     dbt_command: str
     dbt_executable_type: str
     multicell_account_prefix: str | None
-    remote_mcp_url: str
+    remote_mcp_base_url: str
 
 
 def load_config() -> Config:
@@ -107,8 +107,8 @@ def load_config() -> Config:
         dbt_command=dbt_path,
         dbt_executable_type=dbt_executable_type,
         multicell_account_prefix=multicell_account_prefix,
-        remote_mcp_url=(
+        remote_mcp_base_url=(
             "http://" if host and host.startswith("localhost") else "https://"
         )
-        + f"{host}/mcp/sse",
+        + f"{host}/mcp",
     )
