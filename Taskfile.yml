@@ -106,3 +106,18 @@ tasks:
       - docs/d2.png
     cmds:
       - d2 docs/diagram.d2 docs/d2.png --pad 20
+
+  devbox:update:
+    desc: Update the devbox lock file
+    cmds:
+      - devbox update
+
+  devbox:devcontainer:generate:
+    desc: Generates a vscode devcontainer based on the devbox config
+    cmds:
+      - devbox generate devcontainer
+
+  devbox:shell:
+    desc: Runs the devbox development environment shell
+    cmds:
+      - devbox shell

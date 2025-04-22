@@ -31,6 +31,22 @@ cp .env.example .env
 ```
 Then edit `.env` with your specific environment variables (see Configuration)
 
+### Portable development environment
+
+You can also use the supplied development environment, which includes all the required tools.
+
+#### Visual Studio Code devcontainer
+
+If you use Visual Studio Code and containers, you can open the command palette (`Shift+Cmd+P` on mac) and select `Dev Containers: Rebuild and Reopen in Container`. This will spin up the devcontainer.
+
+#### devbox
+
+If you use [devbox](https://github.com/jetify-com/devbox), you can start the devbox shell by running:
+
+```sh
+devbox shell
+```
+
 ## Installation
 
 Want to get going quickly?
