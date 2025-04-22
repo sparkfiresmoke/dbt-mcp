@@ -41,7 +41,7 @@ If you use Visual Studio Code and containers, you can open the command palette (
 
 #### devbox
 
-If you use [devbox](https://www.jetify.com/devbox), you can start the devbox shell by running:
+If you use [devbox](https://github.com/jetify-com/devbox), you can start the devbox shell by running:
 
 ```sh
 devbox shell
