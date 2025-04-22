@@ -116,3 +116,8 @@ tasks:
     desc: Generates a vscode devcontainer based on the devbox config
     cmds:
       - devbox generate devcontainer
+
+  devbox:shell:
+    desc: Runs the devbox development environment shell
+    cmds:
+      - devbox shell
