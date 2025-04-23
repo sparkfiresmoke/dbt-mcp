@@ -21,14 +21,18 @@
 # This script is designed to be run on macOS.
 
 mcp_server_dir="${HOME}/.dbt-mcp"
+config_file="${mcp_server_dir}/dbt-mcp.conf"
 
 function check_existing_installation() {
     if [[ -d "${mcp_server_dir}" && -f "${mcp_server_dir}/.venv/bin/dbt-mcp" ]]; then
-        echo "dbt-mcp is already installed in ${mcp_server_dir}."
+        echo "dbt-mcp is already installed at ${mcp_server_dir}."
+        echo ""
         echo "How would you like to proceed?"
         echo "1. Remove the existing installation and start fresh"
         echo "2. Try to update the existing installation"
-        echo "3. Abort! Abort!"
+        echo "3. Reconfigure the existing installation"
+        echo "4. Show the current configuration"
+        echo "5. Abort! Abort!"
 
         read -p "Enter your choice (1-3): " choice
 
@@ -43,6 +47,24 @@ function check_existing_installation() {
             exit 0
             ;;
         3)
+            echo "This will override the existing configuration. Are you sure you want to proceed?"
+            read -p "Enter y/n: " confirm
+            if [[ "${confirm}" =~ ^[Yy]$ ]]; then
+                rm -rf "${config_file}"
+                configure_environment
+                render_mcp_config
+                exit 0
+            else
+                echo "Configuration not changed. Exiting."
+                exit 0
+            fi
+            ;;
+        4)
+            echo "Current configuration:"
+            render_mcp_config
+            exit 0
+            ;;
+        5)
             echo "Installation aborted. Bye!"
             exit 0
             ;;
@@ -58,7 +80,7 @@ function update_existing_installation() {
     echo "Attempting to update existing installation..."
     cd "${mcp_server_dir}" || exit 1
     if [[ -f ".venv/bin/activate" ]]; then
-        . .venv/bin/activate
+        source .venv/bin/activate
         pip install --upgrade dbt-mcp
         echo "Update completed."
         echo "We hope you'll like the new version!"
@@ -156,58 +178,129 @@ function install_dbt_mcp_package() {
 }
 
 function configure_environment() {
-    # Create .env file
     echo ""
     echo "-----------------------------------------------------------------------"
     echo "We need a couple of details about your dbt project to get started."
-    echo "You can always adjust the configuration later in ${mcp_server_dir}/.env"
+    echo "You can always adjust the configuration later in ${config_file}"
     echo "-----------------------------------------------------------------------"
     echo ""
-    touch "${mcp_server_dir}/.env"
+    touch "${config_file}"
 
     # Prompt for environment variables with defaults
-    echo "Your dbt Cloud instance hostname."
-    echo "This will look like an \`Access URL\` found at https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses. If you are using Multi-cell, do not include the \`ACCOUNT_PREFIX\` here."
-    DBT_HOST=$(prompt_with_default "Enter DBT_HOST" "cloud.dbt.com")
 
-    echo "Your personal access token or service token. Service token is required when using the Semantic Layer."
-    DBT_TOKEN=$(prompt_with_default "Enter DBT_TOKEN" "")
-
-    echo "Your dbt Cloud user ID."
-    DBT_USER_ID=$(prompt_with_default "Enter DBT_USER_ID")
-
-    echo "The path to your dbt project directory."
-    DBT_PROJECT_DIR=$(prompt_with_default "Enter DBT_PROJECT_DIR")
-
-    echo "Your dbt Cloud production environment ID."
-    DBT_PROD_ENV_ID=$(prompt_with_default "Enter DBT_PROD_ENV_ID")
-
-    echo "Your dbt Cloud development environment ID."
-    DBT_DEV_ENV_ID=$(prompt_with_default "Enter DBT_DEV_ENV_ID")
-
-    echo "The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running \`which dbt\`."
-    DBT_PATH=$(prompt_with_default "Enter DBT_PATH")
-
-    echo "If you are using Multi-cell, set this to your \`ACCOUNT_PREFIX\`. If you are not using Multi-cell, do not set this environment variable. You can learn more here : https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses."
-    MULTICELL_ACCOUNT_PREFIX=$(prompt_with_default "Enter MULTICELL_ACCOUNT_PREFIX" "")
-
-    # Write to .env file
-    cat >"${mcp_server_dir}/.env" <<EOF
-DBT_HOST="${DBT_HOST}"
-DBT_TOKEN="${DBT_TOKEN}"
-DBT_PROD_ENV_ID="${DBT_PROD_ENV_ID}"
-DBT_DEV_ENV_ID="${DBT_DEV_ENV_ID}"
-DBT_USER_ID="${DBT_USER_ID}"
-DBT_PROJECT_DIR="${DBT_PROJECT_DIR}"
-DBT_PATH="${DBT_PATH}"
-EOF
-
-    if [[ -n "${MULTICELL_ACCOUNT_PREFIX}" ]]; then
-        echo "MULTICELL_ACCOUNT_PREFIX=\"${MULTICELL_ACCOUNT_PREFIX}\"" >>"${mcp_server_dir}/.env"
+    config_options=()
+    echo "Do you have a local dbt project and want the MCP server use it?"
+    read -p "Enter y/n: " local_dbt_project
+    if [[ "${local_dbt_project}" =~ ^[Yy]$ ]]; then
+        config_options+=("DBT_PROJECT_DIR;$(pwd)")
+        config_options+=("DBT_PATH;$(which dbt)")
+    else
+        echo "DISABLE_DBT_CLI=true" >>"${config_file}"
     fi
 
+    echo "Do you have a dbt Cloud account and want the MCP server to use it?"
+    read -p "Enter y/n: " dbt_cloud
+    if [[ "${dbt_cloud}" =~ ^[Yy]$ ]]; then
+        config_options+=("DBT_HOST;https://cloud.getdbt.com")
+        config_options+=("DBT_TOKEN")
+        config_options+=("DBT_PROD_ENV_ID")
+
+        echo "Do you want to configure the MCP server to use a semantic layer?"
+        read -p "Enter y/n: " semantic_layer
+        if [[ "${semantic_layer}" =~ ^[Nn]$ ]]; then
+            echo "DISABLE_SEMANTIC_LAYER=true" >>"${config_file}"
+        fi
+
+        echo "Do you want to configure the MCP server to use remote tools?"
+        read -p "Enter y/n: " remote_tools
+        if [[ "${remote_tools}" =~ ^[Yy]$ ]]; then
+            config_options+=("DBT_USER_ID")
+            config_options+=("DBT_DEV_ENV_ID")
+        else
+            echo "DISABLE_REMOTE_TOOLS=true" >>"${config_file}"
+        fi
+    else
+        cat >"${config_file}" <<EOF
+DISABLE_SEMANTIC_LAYER=true
+DISABLE_DISCOVERY=true
+DISABLE_REMOTE_TOOLS=true
+EOF
+    fi
+    echo ""
+    echo "You have to set the following environment variables:"
+    for option in "${config_options[@]}"; do
+        option_name=$(echo "${option}" | cut -d';' -f1)
+        echo "${option_name}"
+    done
+    echo "Consult the dbt-mcp documentation for more information on what each of these variables do."
+
+    echo ""
+    read -p "Do you want to configure them right now? (y/n): " configure_now
+    if [[ "${configure_now}" =~ ^[Yy]$ ]]; then
+
+        # iterate over the config_options and add them to the config_file
+        for option in "${config_options[@]}"; do
+            # if option contains ; split otherwise set to empty string
+            if [[ "${option}" =~ ";" ]]; then
+                option_name=$(echo "${option}" | cut -d';' -f1)
+                default_value=$(echo "${option}" | cut -d';' -f2)
+            else
+                option_name="${option}"
+                default_value=""
+            fi
+            config_value=$(prompt_with_default "Enter ${option_name}" "${default_value}")
+
+            if [[ "${option_name}" == "DBT_HOST" ]]; then
+                config_value=$(echo "${config_value}" | sed 's/^https:\/\///' | sed 's/\/$//')
+
+                if [[ ! "${config_value}" =~ getdbt\.com ]]; then
+                    # parse the config_value into https://<cell>.<region>.dbt.com
+                    cell=$(echo "${config_value}" | cut -d'.' -f1)
+                    echo "MULTICELL_ACCOUNT_PREFIX=${cell}" >>"${config_file}"
+                fi
+                # https:// and trailing slashes
+
+            fi
+
+            echo "${option_name}=${config_value}" >>"${config_file}"
+        done
+    else
+        for option in "${config_options[@]}"; do
+            option_name=$(echo "${option}" | cut -d';' -f1)
+            option_value=$(echo "${option}" | cut -d';' -f2)
+            if [[ "${option_name}" == "${option_value}" ]]; then
+                option_value="<${option_name}>"
+            fi
+            echo "${option_name}=${option_value}" >>"${config_file}"
+        done
+    fi
+    echo ""
     echo "Great! That's all we needed for now."
-    echo "You can always adjust the configuration later in ${mcp_server_dir}/.env"
+    echo "You can always adjust the configuration later in ${config_file}"
+}
+
+function render_mcp_config() {
+    config=$(cat "${config_file}")
+    # iterate over the lines in config and encode "key": "value" as json
+    env_vars=()
+    for line in ${config}; do
+        key=$(echo "${line}" | cut -d= -f1)
+        value=$(echo "${line}" | cut -d= -f2)
+        env_vars+=("\"${key}\": \"${value}\"")
+    done
+    env_vars_str=$(printf '        %s,\n' "${env_vars[@]}" | sed '$s/,$//')
+    echo ""
+    echo "Use the following to configure the MCP server in the tool of your choice:"
+    echo "{
+  \"mcpServers\": {
+    \"dbt-mcp\": {
+      \"command\": \"${mcp_server_dir}/dbt-mcp\",
+      \"env\": {
+${env_vars_str}
+      }
+    }
+  }
+}"
 }
 
 # make sure python is installed and has version 3.12 or higher
@@ -219,8 +312,9 @@ check_existing_installation
 # install dbt-mcp package
 install_dbt_mcp_package "$1"
 
-# configure environment
 configure_environment
+
+render_mcp_config
 
 echo "Installation and configuration complete!"
 echo "Have a great day!"

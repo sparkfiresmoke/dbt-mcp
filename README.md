@@ -2,6 +2,37 @@
 
 This MCP (Model Context Protocol) server provides tools to interact with dbt. Read [this](https://docs.getdbt.com/blog/introducing-dbt-mcp-server) blog to learn more.
 
+## Tools
+
+### dbt CLI
+
+* `build` - Executes models, tests, snapshots, and seeds in dependency order
+* `compile` - Generates executable SQL from models, tests, and analyses without running them
+* `docs` - Generates documentation for the dbt project
+* `ls` (list) - Lists resources in the dbt project, such as models and tests
+* `parse` - Parses and validates the project’s files for syntax correctness
+* `run` -  Executes models to materialize them in the database
+* `test` - Runs tests to validate data and model integrity
+* `show` - Runs a query against the data warehouse
+
+> Allowing your client to utilize dbt commands through this MCP tooling could modify your data models, sources, and warehouse objects. Proceed only if you trust the client and understand the potential impact.
+
+
+### Semantic Layer
+
+* `list_metrics` - Retrieves all defined metrics
+* `get_dimensions` - Gets dimensions associated with specified metrics
+* `get_entities` - Gets entities associated with specified metrics
+* `query_metrics` - Queries metrics with optional grouping, ordering, filtering, and limiting
+
+
+### Discovery
+* `get_mart_models` - Gets all mart models
+* `get_all_models` - Gets all models
+* `get_model_details` - Gets details for a specific model
+* `get_model_parents` - Gets parent models of a specific model
+
+
 ## Architecture
 
 ![architecture diagram of the dbt MCP server](https://github.com/user-attachments/assets/89b8a24b-da7b-4e54-ba48-afceaa56f956)
@@ -14,6 +45,14 @@ Want to get going quickly?
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-labs/dbt-mcp/refs/heads/main/install.sh)"
 ```
 The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offers to update it.
+
+### Manual installation
+
+We recommend using a virtual environment.
+
+```bash
+pip install dbt-mcp
+```
 
 ## Configuration
 
@@ -55,16 +94,16 @@ After going through [Installation](#installation), you can use your server with 
 
 This configuration will be added to the respective client's config file. Be sure to replace the sections within `<>`:
 
-If you used the installation script, the mcp server has been installed in your user directory at `~/.dbt-mcp/`.
+
 
 ```json
  {
   "mcpServers": {
     "dbt-mcp": {
-      "command": "/Users/<YOUR USERNAME>/.dbt-mcp/.venv/bin/mcp",
+      "command": "<path-to-mcp-executable>",
       "args": [
         "run",
-        "/Users/<YOUR USERNAME>/.dbt-mcp/.venv/lib/python3.12/site-packages/dbt_mcp/main.py"
+        "<path-to-dbt-mcp-installation>/lib/python3.12/site-packages/dbt_mcp/main.py"
       ],
       "env": {
         // see config above
@@ -138,35 +177,7 @@ Cursor MCP docs [here](https://docs.cursor.com/context/model-context-protocol) f
 
 VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for reference
 
-## Tools
 
-### dbt CLI
-
-* `build` - Executes models, tests, snapshots, and seeds in dependency order
-* `compile` - Generates executable SQL from models, tests, and analyses without running them
-* `docs` - Generates documentation for the dbt project
-* `ls` (list) - Lists resources in the dbt project, such as models and tests
-* `parse` - Parses and validates the project’s files for syntax correctness
-* `run` -  Executes models to materialize them in the database
-* `test` - Runs tests to validate data and model integrity
-* `show` - Runs a query against the data warehouse
-
-> Allowing your client to utilize dbt commands through this MCP tooling could modify your data models, sources, and warehouse objects. Proceed only if you trust the client and understand the potential impact.
-
-
-### Semantic Layer
-
-* `list_metrics` - Retrieves all defined metrics
-* `get_dimensions` - Gets dimensions associated with specified metrics
-* `get_entities` - Gets entities associated with specified metrics
-* `query_metrics` - Queries metrics with optional grouping, ordering, filtering, and limiting
-
-
-### Discovery
-* `get_mart_models` - Gets all mart models
-* `get_all_models` - Gets all models
-* `get_model_details` - Gets details for a specific model
-* `get_model_parents` - Gets parent models of a specific model
 
 
 ## Contributing
