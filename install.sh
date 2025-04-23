@@ -18,10 +18,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script is designed to be run on macOS.
-
 mcp_server_dir="${HOME}/.dbt-mcp"
-config_file="${mcp_server_dir}/dbt-mcp.conf"
+config_file="${mcp_server_dir}/.env"
 
 function check_existing_installation() {
     if [[ -d "${mcp_server_dir}" && -f "${mcp_server_dir}/.venv/bin/dbt-mcp" ]]; then
@@ -113,7 +111,7 @@ function check_python() {
     minor_version=$(echo "${python_version}" | cut -d. -f2)
 
     if [[ "${major_version}" -lt 3 ]] || ([[ "${major_version}" -eq 3 ]] && [[ "${minor_version}" -lt 12 ]]); then
-        echo "Python version ${python_version} is not supported. Please install Python 3.12 or higher."
+        echo "Python version ${python_version} is not supported. Please install Python 3.12.x"
         exit 1
     fi
 
@@ -186,8 +184,6 @@ function configure_environment() {
     echo ""
     touch "${config_file}"
 
-    # Prompt for environment variables with defaults
-
     config_options=()
     echo "Do you have a local dbt project and want the MCP server use it?"
     read -p "Enter y/n: " local_dbt_project
@@ -238,7 +234,6 @@ EOF
     read -p "Do you want to configure them right now? (y/n): " configure_now
     if [[ "${configure_now}" =~ ^[Yy]$ ]]; then
 
-        # iterate over the config_options and add them to the config_file
         for option in "${config_options[@]}"; do
             # if option contains ; split otherwise set to empty string
             if [[ "${option}" =~ ";" ]]; then
@@ -251,6 +246,7 @@ EOF
             config_value=$(prompt_with_default "Enter ${option_name}" "${default_value}")
 
             if [[ "${option_name}" == "DBT_HOST" ]]; then
+                # trim https:// and trailing slashes
                 config_value=$(echo "${config_value}" | sed 's/^https:\/\///' | sed 's/\/$//')
 
                 if [[ ! "${config_value}" =~ getdbt\.com ]]; then
@@ -258,8 +254,6 @@ EOF
                     cell=$(echo "${config_value}" | cut -d'.' -f1)
                     echo "MULTICELL_ACCOUNT_PREFIX=${cell}" >>"${config_file}"
                 fi
-                # https:// and trailing slashes
-
             fi
 
             echo "${option_name}=${config_value}" >>"${config_file}"
@@ -281,7 +275,6 @@ EOF
 
 function render_mcp_config() {
     config=$(cat "${config_file}")
-    # iterate over the lines in config and encode "key": "value" as json
     env_vars=()
     for line in ${config}; do
         key=$(echo "${line}" | cut -d= -f1)
