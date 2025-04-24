@@ -8,17 +8,15 @@ from dbt_mcp.prompts.prompts import get_prompt
 
 def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
     def _run_dbt_command(command: list[str]) -> str:
-        # Add global CLI arguments from environment variable
+        # Commands that should always be quiet to reduce output verbosity
+        verbose_commands = ["build", "compile", "docs", "parse", "run", "test"]
+        
         full_command = command.copy()
-        if config.cli_args:
-            # Insert CLI args after the main command but before command-specific args
-            # This allows arguments like --quiet to work with all commands
-            if len(full_command) > 0:
-                main_command = full_command[0]
-                command_args = full_command[1:] if len(full_command) > 1 else []
-                full_command = [main_command, *config.cli_args, *command_args]
-            else:
-                full_command = [*config.cli_args]
+        # Add --quiet flag to specific commands to reduce context window usage
+        if len(full_command) > 0 and full_command[0] in verbose_commands:
+            main_command = full_command[0]
+            command_args = full_command[1:] if len(full_command) > 1 else []
+            full_command = [main_command, "--quiet", *command_args]
         
         process = subprocess.Popen(
             args=[config.dbt_command, *full_command],
@@ -60,20 +58,8 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
 
     @dbt_mcp.tool(description=get_prompt("dbt_cli/show"))
     def show(sql_query: str, limit: int | None = None) -> str:
-        # For 'show' command, we need special handling to ensure SQL query is properly positioned
-        # First part of the command (before any CLI args would be inserted)
-        args = ["show"]
-        
-        # Second part of the command (after CLI args would be inserted)
-        query_args = ["--inline", sql_query, "--favor-state"]
+        args = ["show", "--inline", sql_query, "--favor-state"]
         if limit:
-            query_args.extend(["--limit", str(limit)])
-        query_args.extend(["--output", "json"])
-        
-        # Insert CLI args after the 'show' command but before the query arguments
-        full_command = args.copy()
-        if config.cli_args:
-            full_command.extend(config.cli_args)
-        full_command.extend(query_args)
-        
-        return _run_dbt_command(full_command)
+            args.extend(["--limit", str(limit)])
+        args.extend(["--output", "json"])
+        return _run_dbt_command(args)

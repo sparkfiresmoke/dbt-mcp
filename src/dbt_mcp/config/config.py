@@ -17,7 +17,6 @@ class Config:
     discovery_enabled: bool
     remote_enabled: bool
     dbt_command: str
-    cli_args: list[str]
     multicell_account_prefix: str | None
     remote_mcp_url: str
 
@@ -38,10 +37,6 @@ def load_config() -> Config:
     disable_discovery = os.environ.get("DISABLE_DISCOVERY", "false") == "true"
     disable_remote = os.environ.get("DISABLE_REMOTE", "true") == "true"
     multicell_account_prefix = os.environ.get("MULTICELL_ACCOUNT_PREFIX", None)
-    
-    # Parse the DBT_CLI_ARGS environment variable into a list of arguments
-    cli_args_str = os.environ.get("DBT_CLI_ARGS", "")
-    cli_args = cli_args_str.split() if cli_args_str else []
 
     errors = []
     if not disable_semantic_layer or not disable_discovery:
@@ -104,7 +99,6 @@ def load_config() -> Config:
         discovery_enabled=not disable_discovery,
         remote_enabled=not disable_remote,
         dbt_command=dbt_path,
-        cli_args=cli_args,
         multicell_account_prefix=multicell_account_prefix,
         remote_mcp_url=(
             "http://" if host and host.startswith("localhost") else "https://"
