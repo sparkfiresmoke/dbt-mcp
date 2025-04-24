@@ -89,29 +89,20 @@ function update_existing_installation() {
     fi
 }
 
-function python() {
-    # check if it's python or python3
-    if command -v python3 &>/dev/null; then
-        echo "python3"
-    else
-        echo "python"
-    fi
-}
-
 function check_python() {
     # check if python is installed
-    if ! command -v $(python) &>/dev/null; then
+    if ! command -v python &>/dev/null; then
         echo "Python is not installed. Please install Python and try again."
         exit 1
     fi
 
     # check if python version is 3.12 or higher
-    python_version=$($(python) --version 2>&1 | awk '{print $2}')
+    python_version=$(python --version 2>&1 | awk '{print $2}')
     major_version=$(echo "${python_version}" | cut -d. -f1)
     minor_version=$(echo "${python_version}" | cut -d. -f2)
 
-    if [[ "${major_version}" -lt 3 ]] || ([[ "${major_version}" -eq 3 ]] && [[ "${minor_version}" -lt 12 ]]); then
-        echo "Python version ${python_version} is not supported. Please install Python 3.12.x"
+    if [[ "${major_version}" -lt 3 ]] || { [[ "${major_version}" -eq 3 ]] && [[ "${minor_version}" -lt 12 ]]; }; then
+        echo "Python version ${python_version} is not supported. Please install Python 3.12 or higher"
         exit 1
     fi
 
@@ -158,7 +149,7 @@ function install_dbt_mcp_package() {
     current_dir=$(pwd)
     mkdir -p "${mcp_server_dir}"
     cd "${mcp_server_dir}" || exit 1
-    $(python) -m venv .venv
+    python -m venv .venv
     if [[ -f ".venv/bin/activate" ]]; then
         source .venv/bin/activate
         if ! pip install "${target_package}"; then
@@ -194,14 +185,20 @@ function configure_environment() {
         echo "DISABLE_DBT_CLI=true" >>"${config_file}"
     fi
 
-    echo "Do you have a dbt Cloud account and want the MCP server to use it?"
+    echo "Do you have a dbt Cloud account and want the MCP server to access it?"
     read -p "Enter y/n: " dbt_cloud
     if [[ "${dbt_cloud}" =~ ^[Yy]$ ]]; then
         config_options+=("DBT_HOST;https://cloud.getdbt.com")
         config_options+=("DBT_TOKEN")
         config_options+=("DBT_PROD_ENV_ID")
 
-        echo "Do you want to configure the MCP server to use a semantic layer?"
+        echo "Do you want to give the MCP server access to the discovery API?"
+        read -p "Enter y/n: " discovery
+        if [[ "${discovery}" =~ ^[Nn]$ ]]; then
+            echo "DISABLE_DISCOVERY=true" >>"${config_file}"
+        fi
+
+        echo "Do you want to configure the MCP server to use your semantic layer?"
         read -p "Enter y/n: " semantic_layer
         if [[ "${semantic_layer}" =~ ^[Nn]$ ]]; then
             echo "DISABLE_SEMANTIC_LAYER=true" >>"${config_file}"
@@ -223,7 +220,7 @@ DISABLE_REMOTE_TOOLS=true
 EOF
     fi
     echo ""
-    echo "You have to set the following environment variables:"
+    echo "Please set the following environment variables:"
     for option in "${config_options[@]}"; do
         option_name=$(echo "${option}" | cut -d';' -f1)
         echo "${option_name}"
@@ -231,7 +228,7 @@ EOF
     echo "Consult the dbt-mcp documentation for more information on what each of these variables do."
 
     echo ""
-    read -p "Do you want to configure them right now? (y/n): " configure_now
+    read -p "Do you have the values for the above variables ready and want to configure them right now? (y/n): " configure_now
     if [[ "${configure_now}" =~ ^[Yy]$ ]]; then
 
         for option in "${config_options[@]}"; do
@@ -249,9 +246,12 @@ EOF
                 # trim https:// and trailing slashes
                 config_value=$(echo "${config_value}" | sed 's/^https:\/\///' | sed 's/\/$//')
 
-                if [[ ! "${config_value}" =~ getdbt\.com ]]; then
-                    # parse the config_value into https://<cell>.<region>.dbt.com
-                    cell=$(echo "${config_value}" | cut -d'.' -f1)
+                # split hostname by .
+                hostname_parts=(${config_value//./ })
+
+                # if the number of elements is 4 or more, we have a cell based hostname
+                if [[ ${#hostname_parts[@]} -ge 4 && "${config_value}" =~ dbt\.com$ ]]; then
+                    cell=${hostname_parts[0]}
                     echo "MULTICELL_ACCOUNT_PREFIX=${cell}" >>"${config_file}"
                 fi
             fi
