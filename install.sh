@@ -32,7 +32,7 @@ function check_existing_installation() {
         echo "4. Show the current configuration"
         echo "5. Abort! Abort!"
 
-        read -p "Enter your choice (1-3): " choice
+        read -p "Enter your choice (1-5): " choice
 
         case "${choice}" in
         1)
