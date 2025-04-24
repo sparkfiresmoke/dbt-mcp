@@ -48,6 +48,7 @@ The MCP server takes the following configuration:
 |------|-------------|
 | `DBT_PROJECT_DIR` | The path to your dbt Project |
 | `DBT_PATH` | The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt` |
+| `DBT_CLI_ARGS` | Additional CLI arguments to pass to all dbt commands (e.g., `--quiet` to reduce output verbosity) |
 
 ## Using with MCP Clients
 

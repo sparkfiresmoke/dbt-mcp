@@ -186,6 +186,9 @@ function configure_environment() {
     echo "The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running \`which dbt\`."
     DBT_PATH=$(prompt_with_default "Enter DBT_PATH")
 
+    echo "Additional CLI arguments to pass to all dbt commands (e.g., --quiet to reduce output verbosity)."
+    DBT_CLI_ARGS=$(prompt_with_default "Enter DBT_CLI_ARGS" "")
+
     echo "If you are using Multi-cell, set this to your \`ACCOUNT_PREFIX\`. If you are not using Multi-cell, do not set this environment variable. You can learn more here : https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses."
     MULTICELL_ACCOUNT_PREFIX=$(prompt_with_default "Enter MULTICELL_ACCOUNT_PREFIX" "")
 
@@ -198,6 +201,7 @@ DBT_DEV_ENV_ID="${DBT_DEV_ENV_ID}"
 DBT_USER_ID="${DBT_USER_ID}"
 DBT_PROJECT_DIR="${DBT_PROJECT_DIR}"
 DBT_PATH="${DBT_PATH}"
+DBT_CLI_ARGS="${DBT_CLI_ARGS}"
 EOF
 
     if [[ -n "${MULTICELL_ACCOUNT_PREFIX}" ]]; then
