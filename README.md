@@ -2,6 +2,10 @@
 
 This MCP (Model Context Protocol) server provides tools to interact with dbt. Read [this](https://docs.getdbt.com/blog/introducing-dbt-mcp-server) blog to learn more.
 
+<a href="https://glama.ai/mcp/servers/@dbt-labs/dbt-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@dbt-labs/dbt-mcp/badge" alt="dbt-mcp MCP server" />
+</a>
+
 ## Architecture
 
 ![architecture diagram of the dbt MCP server](https://github.com/user-attachments/assets/89b8a24b-da7b-4e54-ba48-afceaa56f956)
