@@ -253,9 +253,11 @@ EOF
                 if [[ ${#hostname_parts[@]} -ge 4 && "${config_value}" =~ dbt\.com$ ]]; then
                     cell=${hostname_parts[0]}
                     echo "MULTICELL_ACCOUNT_PREFIX=${cell}" >>"${config_file}"
+
+                    # trim cell from config_value and echo to config_file
+                    config_value=$(echo "${config_value}" | sed "s/${cell}\.//")
                 fi
             fi
-
             echo "${option_name}=${config_value}" >>"${config_file}"
         done
     else
