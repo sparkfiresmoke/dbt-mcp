@@ -280,7 +280,7 @@ function render_mcp_config() {
     env_vars=()
     for line in ${config}; do
         key=$(echo "${line}" | cut -d= -f1)
-        value=$(echo "${line}" | cut -d= -f2)
+        value=$(echo "${line}" | cut -d= -f2 | tr -d '"')
         env_vars+=("\"${key}\": \"${value}\"")
     done
     env_vars_str=$(printf '        %s,\n' "${env_vars[@]}" | sed '$s/,$//')
