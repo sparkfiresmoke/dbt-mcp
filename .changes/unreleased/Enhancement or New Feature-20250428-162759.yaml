@@ -1,0 +1,6 @@
+kind: Enhancement or New Feature
+body: |
+  Improve installation and docs.
+  - improved installation script now asks only for the config values required for the tool groups the user wants to user
+  - restructured the README to put the available tools into the foreground
+time: 2025-04-28T16:27:59.469489+01:00
