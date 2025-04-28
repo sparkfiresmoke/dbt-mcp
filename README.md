@@ -44,7 +44,7 @@ Want to get going quickly?
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-labs/dbt-mcp/refs/heads/main/install.sh)"
 ```
-The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offers to update it.
+The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offer to update it.
 
 ### Manual installation
 
@@ -96,14 +96,15 @@ This configuration will be added to the respective client's config file. Be sure
 
 
 
+#### Linux & Mac
 ```json
  {
   "mcpServers": {
     "dbt-mcp": {
-      "command": "<path-to-mcp-executable>",
+      "command": "<path-to-dbt-mcp-installation>/.venv/bin/mcp",
       "args": [
         "run",
-        "<path-to-dbt-mcp-installation>/lib/python3.12/site-packages/dbt_mcp/main.py"
+        "<path-to-dbt-mcp-installation>/lib/python<3.12 | 3.13>/site-packages/dbt_mcp/main.py"
       ],
       "env": {
         // see config above
@@ -115,10 +116,25 @@ This configuration will be added to the respective client's config file. Be sure
 }
 ```
 
-`<path-to-mcp-executable>` depends on your OS:
-- Linux & Mac: `<path-to-this-directory>/.venv/bin/mcp`
-- PC: `<path-to-this-directory>/.venv/Scripts/mcp`
-
+#### Windows
+```json
+ {
+  "mcpServers": {
+    "dbt-mcp": {
+      "command": "<path-to-dbt-mcp-installation>/.venv/Scripts/mcp",
+      "args": [
+        "run",
+        "<path-to-dbt-mcp-installation>/lib/python<3.12 | 3.13>/site-packages/dbt_mcp/main.py"
+      ],
+      "env": {
+        // see config above
+        // "DBT_HOST": "cloud.getdbt.com"
+        // "DBT_TOKEN": "dbtu_...."
+      }
+    }
+  }
+}
+```
 
 ## Claude Desktop
 
