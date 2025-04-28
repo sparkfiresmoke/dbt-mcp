@@ -6,15 +6,6 @@ This MCP (Model Context Protocol) server provides tools to interact with dbt. Re
 
 ![architecture diagram of the dbt MCP server](https://github.com/user-attachments/assets/89b8a24b-da7b-4e54-ba48-afceaa56f956)
 
-## Installation
-
-Want to get going quickly?
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-labs/dbt-mcp/refs/heads/main/install.sh)"
-```
-The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offers to update it.
-
 ## Configuration
 
 The MCP server takes the following configuration:
@@ -54,8 +45,6 @@ The MCP server takes the following configuration:
 After going through [Installation](#installation), you can use your server with an MCP client.
 
 This configuration will be added to the respective client's config file. Be sure to replace the sections within `<>`:
-
-If you used the installation script, the mcp server has been installed in your user directory at `~/.dbt-mcp/`.
 
 ```json
  {
