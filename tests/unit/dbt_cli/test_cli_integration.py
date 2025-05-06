@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-import pytest
 
 from dbt_mcp.config.config import Config
 
