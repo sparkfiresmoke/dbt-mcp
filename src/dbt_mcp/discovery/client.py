@@ -126,7 +126,8 @@ class GraphQLQueries:
         }
     """)
 
-    GET_MODEL_PARENTS = (textwrap.dedent("""
+    GET_MODEL_PARENTS = (
+        textwrap.dedent("""
         query GetModelParents(
             $environmentId: BigInt!,
             $modelsFilter: ModelAppliedFilter
@@ -141,9 +142,9 @@ class GraphQLQueries:
                         edges {
                             node {
                                 parents 
-    """) 
-    + COMMON_FIELDS_PARENTS_CHILDREN 
-    + textwrap.dedent("""
+    """)
+        + COMMON_FIELDS_PARENTS_CHILDREN
+        + textwrap.dedent("""
                                 }
                             }
                         }
@@ -154,7 +155,8 @@ class GraphQLQueries:
     """)
     )
 
-    GET_MODEL_CHILDREN = (textwrap.dedent("""
+    GET_MODEL_CHILDREN = (
+        textwrap.dedent("""
         query GetModelChildren(
             $environmentId: BigInt!,
             $modelsFilter: ModelAppliedFilter
@@ -169,9 +171,9 @@ class GraphQLQueries:
                         edges {
                             node {
                                 children 
-    """) 
-    + COMMON_FIELDS_PARENTS_CHILDREN 
-    + textwrap.dedent("""
+    """)
+        + COMMON_FIELDS_PARENTS_CHILDREN
+        + textwrap.dedent("""
                                 }
                             }
                         }
