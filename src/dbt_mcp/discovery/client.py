@@ -27,6 +27,7 @@ class GraphQLQueries:
                         edges {
                             node {
                                 name
+                                alias
                                 description
                             }
                         }
