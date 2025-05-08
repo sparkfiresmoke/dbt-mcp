@@ -260,12 +260,19 @@ class ModelsFetcher:
 
         return all_edges
 
-    def fetch_model_details(self, model_name: str) -> dict:
-        variables = {
-            "environmentId": self.environment_id,
-            "modelsFilter": {"identifier": model_name},
-            "first": 1,
-        }
+    def fetch_model_details(self, model_name: str, uniqueId: str = None) -> dict:
+        if uniqueId:
+            variables = {
+                "environmentId": self.environment_id,
+                "modelsFilter": {"uniqueIds": [uniqueId]},
+                "first": 1,
+            }
+        else:
+            variables = {
+                "environmentId": self.environment_id,
+                "modelsFilter": {"identifier": model_name},
+                "first": 1,
+            }
         result = self.api_client.execute_query(
             GraphQLQueries.GET_MODEL_DETAILS, variables
         )
