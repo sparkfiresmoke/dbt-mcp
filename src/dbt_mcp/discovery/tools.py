@@ -51,17 +51,17 @@ def register_discovery_tools(dbt_mcp: FastMCP, config: Config) -> None:
             return str(e)
 
     @dbt_mcp.tool(description=get_prompt("discovery/get_model_parents"))
-    def get_model_parents(model_name: str) -> list[dict] | str:
+    def get_model_parents(model_name: str, uniqueId: str = None) -> list[dict] | str:
         try:
-            return models_fetcher.fetch_model_parents(model_name)
+            return models_fetcher.fetch_model_parents(model_name, uniqueId)
         except Exception as e:
             logger.error(f"Error getting model parents: {e}")
             return str(e)
 
     @dbt_mcp.tool(description=get_prompt("discovery/get_model_children"))
-    def get_model_children(model_name: str) -> list[dict] | str:
+    def get_model_children(model_name: str, uniqueId: str = None) -> list[dict] | str:
         try:
-            return models_fetcher.fetch_model_children(model_name)
+            return models_fetcher.fetch_model_children(model_name, uniqueId)
         except Exception as e:
             logger.error(f"Error getting model children: {e}")
             return str(e)
