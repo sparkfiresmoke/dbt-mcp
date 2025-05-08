@@ -68,6 +68,23 @@ def test_fetch_model_details(models_fetcher: ModelsFetcher):
     assert len(filtered_results) > 0
 
 
+def test_fetch_model_details_with_uniqueId(models_fetcher: ModelsFetcher):
+    models = models_fetcher.fetch_models()
+    model = models[0]
+    model_name = model["name"]
+    unique_id = model["uniqueId"]
+
+    # Fetch by name
+    results_by_name = models_fetcher.fetch_model_details(model_name)
+    
+    # Fetch by uniqueId
+    results_by_uniqueId = models_fetcher.fetch_model_details(model_name, unique_id)
+    
+    # Validate that both methods return the same result
+    assert results_by_name["uniqueId"] == results_by_uniqueId["uniqueId"]
+    assert results_by_name["name"] == results_by_uniqueId["name"]
+
+
 def test_fetch_model_parents(models_fetcher: ModelsFetcher):
     models = models_fetcher.fetch_models()
     model_name = models[0]["name"]
