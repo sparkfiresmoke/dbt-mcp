@@ -27,7 +27,7 @@ class GraphQLQueries:
                         edges {
                             node {
                                 name
-                                alias
+                                uniqueId
                                 description
                             }
                         }
@@ -49,8 +49,7 @@ class GraphQLQueries:
                         edges {
                             node {
                                 name
-                                alias,
-                                uniqueId,
+                                uniqueId
                                 compiledCode
                                 description
                                 database
@@ -261,46 +260,20 @@ class ModelsFetcher:
 
         return all_edges
 
-    def fetch_model_details(self, model_name: str, alias: str = None) -> dict | list[dict]:
-        if alias:
-            # If alias is provided, return up to 10 matching models
-            variables = {
-                "environmentId": self.environment_id,
-                "modelsFilter": {"identifier": alias},
-                "first": 10,  # Limit to 10 models for aliases
-            }
-            result = self.api_client.execute_query(
-                GraphQLQueries.GET_MODEL_DETAILS, variables
-            )
-            raise_gql_error(result)
-            edges = result["data"]["environment"]["applied"]["models"]["edges"]
-            if not edges:
-                return {}  # Return empty dict for consistency when no results are found
-            
-            models = [edge["node"] for edge in edges]
-            
-            # Add a warning if there might be more matches
-            if len(models) == 10:
-                # Include the warning in the first model so the LLM can see it
-                if models and isinstance(models[0], dict):
-                    models[0]["warning"] = f"Found 10 models with alias '{alias}'. There might be more matches that weren't returned."
-            
-            return models
-        else:
-            # Original behavior for model_name
-            variables = {
-                "environmentId": self.environment_id,
-                "modelsFilter": {"identifier": model_name},
-                "first": 1,
-            }
-            result = self.api_client.execute_query(
-                GraphQLQueries.GET_MODEL_DETAILS, variables
-            )
-            raise_gql_error(result)
-            edges = result["data"]["environment"]["applied"]["models"]["edges"]
-            if not edges:
-                return {}
-            return edges[0]["node"]
+    def fetch_model_details(self, model_name: str) -> dict:
+        variables = {
+            "environmentId": self.environment_id,
+            "modelsFilter": {"identifier": model_name},
+            "first": 1,
+        }
+        result = self.api_client.execute_query(
+            GraphQLQueries.GET_MODEL_DETAILS, variables
+        )
+        raise_gql_error(result)
+        edges = result["data"]["environment"]["applied"]["models"]["edges"]
+        if not edges:
+            return {}
+        return edges[0]["node"]
 
     def fetch_model_parents(self, model_name: str) -> list[dict]:
         variables = {
